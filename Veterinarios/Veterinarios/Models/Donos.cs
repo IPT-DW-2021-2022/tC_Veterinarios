@@ -24,6 +24,8 @@ namespace Veterinarios.Models {
       /// </summary>
       [Required(ErrorMessage = "o {0} é de preenchimento obrigatório")]
       [StringLength(50, ErrorMessage = "o {0} não pode ter mais do que {1} caracteres.")]
+      [RegularExpression("[A-Za-záéíóúâêîôûàèìòùäëïöüñçãõÁÉÍÓÚÂ '-]+",
+                          ErrorMessage = "Só pode usar letras no {0}")]
       public string Nome { get; set; }
 
       /// <summary>
@@ -32,7 +34,7 @@ namespace Veterinarios.Models {
       /// </summary>
       [Required(ErrorMessage = "o {0} é de preenchimento obrigatório")]
       [StringLength(1, ErrorMessage = "o {0} não pode ter mais do que {1} carácter.")]
-      [RegularExpression("[MmFf]", ErrorMessage ="só pode escrever F para feminino ou M para masculino")]
+      [RegularExpression("[MmFf]", ErrorMessage = "só pode escrever F para feminino ou M para masculino")]
       public string Sexo { get; set; }
 
       /// <summary>

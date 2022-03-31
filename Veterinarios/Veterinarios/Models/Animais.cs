@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Veterinarios.Models {
    public class Animais {
@@ -12,8 +13,10 @@ namespace Veterinarios.Models {
 
       public string Nome { get; set; }
 
+      [Display(Name ="Espécie")]
       public string Especie { get; set; }
 
+      [Display(Name = "Raça")]
       public string Raca { get; set; }
 
       public double Peso { get; set; }
