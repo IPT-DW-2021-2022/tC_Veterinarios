@@ -126,13 +126,16 @@ namespace Veterinarios.Controllers {
                // se entrar aqui é pq o ficheiro existe e é válido
                // obter o endereço da pasta WWWROOT do projeto
                string localizacaoImagem = _webHostEnvironment.WebRootPath;
+               // identificar se a pasta 'Fotos' existe
+               if (!Directory.Exists(Path.Combine(localizacaoImagem, "Fotos"))) {
+                  Directory.CreateDirectory(Path.Combine(localizacaoImagem, "Fotos"));
+               }
+               // criar a referência ao ficheiro a guardar
                localizacaoImagem = Path.Combine(localizacaoImagem, "Fotos", medicoVeterinario.Fotografia);
-              // guardar efetivamente o ficheiro no disco rígido
+               // guardar efetivamente o ficheiro no disco rígido
                using var stream = new FileStream(localizacaoImagem, FileMode.Create);
                await fotoVet.CopyToAsync(stream);
             }
-
-
             return RedirectToAction(nameof(Index));
          }
          return View(medicoVeterinario);
