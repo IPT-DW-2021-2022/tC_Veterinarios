@@ -190,18 +190,33 @@ namespace Veterinarios.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,NumCedulaProf,Fotografia")] MedicosVeterinarios medicosVeterinarios) {
-         if (id != medicosVeterinarios.Id) {
+      public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,NumCedulaProf,Fotografia")] MedicosVeterinarios vet, IFormFile fotoVet) {
+         if (id != vet.Id) {
             return NotFound();
          }
 
+         /* processar o novo ficheiro se foi fornecido
+          * 
+          * se há ficheiro, fazer como no CREATE
+          *    se o ficheiro for válido, 
+          *        guardar o ficheiro no disco
+          *        apagar o ficheiro 'velho' 
+          */
+
+         /* Será que o utilizador quer manter uma fotografia?
+          * ie, será que quer passar a usar a 'noVet.jpg'?
+          * como fazer?
+          * 
+          */
+
+
          if (ModelState.IsValid) {
             try {
-               _context.Update(medicosVeterinarios);
+               _context.Update(vet);
                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException) {
-               if (!MedicosVeterinariosExists(medicosVeterinarios.Id)) {
+               if (!MedicosVeterinariosExists(vet.Id)) {
                   return NotFound();
                }
                else {
@@ -214,7 +229,7 @@ namespace Veterinarios.Controllers {
 
             return RedirectToAction(nameof(Index));
          }
-         return View(medicosVeterinarios);
+         return View(vet);
       }
 
       // GET: Veterinario/Delete/5
@@ -236,11 +251,18 @@ namespace Veterinarios.Controllers {
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
-         var medicosVeterinarios = await _context.Veterinarios.FindAsync(id);
-         _context.Veterinarios.Remove(medicosVeterinarios);
+
+         var medicoVeterinario = await _context.Veterinarios.FindAsync(id);
+
+         _context.Veterinarios.Remove(medicoVeterinario);
+
          await _context.SaveChangesAsync();
+
          return RedirectToAction(nameof(Index));
       }
+
+
+
 
       private bool MedicosVeterinariosExists(int id) {
          return _context.Veterinarios.Any(e => e.Id == id);
