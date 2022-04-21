@@ -117,10 +117,41 @@ namespace Veterinarios.Controllers {
 
          // avaliar se os dados do Modelo estão válido
          if (ModelState.IsValid) {
-            // adiciona o novo objeto à BD
-            _context.Add(medicoVeterinario);
-            // consolida os dados
-            await _context.SaveChangesAsync();
+            try {
+               // adiciona o novo objeto à BD
+               _context.Add(medicoVeterinario);
+               // consolida os dados
+               await _context.SaveChangesAsync();
+            }
+            catch (Exception ex) {
+               // É OBRIGATÓRIO tratar a exceção
+
+               /*
+                * é possível resolver o problema => resolvam-no
+                * 
+                * reportar o problema
+                *     - escrever no disco rígido do servidor num log esse facto
+                *         - data + hora
+                *         - controller + method
+                *         - qual o utilizador?
+                *         - detalhes do erro
+                *         - etc.
+                *     - escrever na BD os mesmos dados
+                *     - enviar um email ao administrador a avisar q ocorreu o erro
+                * 
+                * notificar o utilizador que ocorreu um erro, e se possível, 
+                *     o que deve fazer para o corrigir
+                * 
+                * */
+
+               // gerar a msg de erro para o utilizador
+               ModelState.AddModelError("", "Ocorreu um erro na operação de " +
+                  "guardar os dados na base de dados");
+               // devolver controlo à View
+               return View(medicoVeterinario);
+            }
+
+
             // Vou gravar o ficheiro no disco rígido
             if (fotoVet != null) {
                // se entrar aqui é pq o ficheiro existe e é válido
@@ -177,6 +208,10 @@ namespace Veterinarios.Controllers {
                   throw;
                }
             }
+            catch (Exception) {
+               throw;
+            }
+
             return RedirectToAction(nameof(Index));
          }
          return View(medicosVeterinarios);
