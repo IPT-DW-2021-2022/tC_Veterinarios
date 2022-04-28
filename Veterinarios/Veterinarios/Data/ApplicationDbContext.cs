@@ -29,7 +29,25 @@ namespace Veterinarios.Data {
             new MedicosVeterinarios { Id =3, Nome = "Ricardo Gonçalo Silva", NumCedulaProf = "Vet-2344", Fotografia = "Ricardo.jpg" }
             );
 
+         modelBuilder.Entity<Donos>().HasData(
+            new Donos { Id = 1, Nome = "Luís Freitas", Sexo = "M", NIF = "813635582" },
+            new Donos { Id = 2, Nome = "Andreia Gomes", Sexo = "F", NIF = "854613462" },
+            new Donos { Id = 3, Nome = "Cristina Sousa", Sexo = "F", NIF = "265368715" },
+            new Donos { Id = 4, Nome = "Sónia Rosa", Sexo = "F", NIF = "835623190" }
+         );
 
+         modelBuilder.Entity<Animais>().HasData(
+            new Animais { Id = 1, Nome = "Bubi", Especie = "Cão", Raca = "Pastor Alemão", Peso = 24, Foto = "animal1.jpg", DonoFK = 1 },
+            new Animais { Id = 2, Nome = "Pastor", Especie = "Cão", Raca = "Serra Estrela", Peso = 50, Foto = "animal2.jpg", DonoFK = 3 },
+            new Animais { Id = 3, Nome = "Tripé", Especie = "Cão", Raca = "Serra Estrela", Peso = 4, Foto = "animal3.jpg", DonoFK = 2 },
+            new Animais { Id = 4, Nome = "Saltador", Especie = "Cavalo", Raca = "Lusitana", Peso = 580, Foto = "animal4.jpg", DonoFK = 3 },
+            new Animais { Id = 5, Nome = "Tareco", Especie = "Gato", Raca = "siamês", Peso = 1, Foto = "animal5.jpg", DonoFK = 3 },
+            new Animais { Id = 6, Nome = "Cusca", Especie = "Cão", Raca = "Labrador", Peso = 45, Foto = "animal6.jpg", DonoFK = 2 },
+            new Animais { Id = 7, Nome = "Morde Tudo", Especie = "Cão", Raca = "Dobermann", Peso = 39, Foto = "animal7.jpg", DonoFK = 4 },
+            new Animais { Id = 8, Nome = "Forte", Especie = "Cão", Raca = "Rottweiler", Peso = 20, Foto = "animal8.jpg", DonoFK = 2 },
+            new Animais { Id = 9, Nome = "Castanho", Especie = "Vaca", Raca = "Mirandesa", Peso = 652, Foto = "animal9.jpg", DonoFK = 3 },
+            new Animais { Id = 10, Nome = "Saltitão", Especie = "Gato", Raca = "Persa", Peso = 2, Foto = "animal10.jpg", DonoFK = 1 }
+         );
       }
 
 
