@@ -15,6 +15,17 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+// permite criar 'variáveis de sessão' (funcionam como 'cookies')
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+   options.IdleTimeout = TimeSpan.FromSeconds(120);
+   options.Cookie.HttpOnly = true;
+   options.Cookie.IsEssential = true;
+});
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,6 +42,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// usar o serviço das Vars. de Sessão
+app.UseSession();
+
 
 app.UseAuthentication();
 app.UseAuthorization();

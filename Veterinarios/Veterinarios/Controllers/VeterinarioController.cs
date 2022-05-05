@@ -175,15 +175,27 @@ namespace Veterinarios.Controllers {
       // GET: Veterinario/Edit/5
       public async Task<IActionResult> Edit(int? id) {
          if (id == null) {
-            return NotFound();
+            return RedirectToAction("Index");
          }
 
-         var medicosVeterinarios = await _context.Veterinarios.FindAsync(id);
-         if (medicosVeterinarios == null) {
-            return NotFound();
+         var medicoVeterinario = await _context.Veterinarios.FindAsync(id);
+         if (medicoVeterinario == null) {
+            return RedirectToAction("Index");
          }
-         return View(medicosVeterinarios);
+
+
+         /* O que quero fazer?
+          * Guardar o ID do médico veterinário para assegurar que não há alterações no browser...
+          */
+         // Session["vet"]= medicoVeterinario.Id;
+         // equivalente ao trabalho que antes era feito com as Var. Session
+         HttpContext.Session.SetInt32("idVet", medicoVeterinario.Id);
+
+         // envio dos dados para a View
+         return View(medicoVeterinario);
       }
+
+
 
       // POST: Veterinario/Edit/5
       // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -194,6 +206,33 @@ namespace Veterinarios.Controllers {
          if (id != vet.Id) {
             return NotFound();
          }
+
+         /* Preciso de recuperar os dados guardados (em GET) 
+          * para aferir se houve alteração fraudulenta...
+          * O que vou fazer?
+          *    - ler o valor da Var. Sessão
+          *    - se existirem, vou comparar com o valor que ele deveria ter
+          *         - se forem iguais, tudo bem
+          *           caso contrário, foram adulterados
+          */
+         int? idVeterinario = HttpContext.Session.GetInt32("idVet");
+
+         if (idVeterinario == null) {
+            // demorei muito tempo na edição dos dados
+            // o que vou fazer?
+            // neste caso, vou gerar uma msg de erro
+            ModelState.AddModelError("", "Demorou muito tempo na edição dos dados...");
+            // e devolver os dados à View
+            return View(vet);
+         }
+
+         // avaliar se houve adulteração
+         if (idVeterinario != vet.Id) {
+            // e, existiu...
+            // chamar as autorizades???
+            return RedirectToAction("Index");
+         }
+
 
          /* processar o novo ficheiro se foi fornecido
           * 
