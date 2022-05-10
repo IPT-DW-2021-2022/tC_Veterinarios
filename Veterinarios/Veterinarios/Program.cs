@@ -7,12 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(
+   options => options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => 
-    options.SignIn.RequireConfirmedAccount = true
+// estamos a configurar o 'serviÃ§o' que deve usar a classe ApplicationUser como
+// gestora dos dados da autenticaÃ§Ã£o
+builder.Services.AddDefaultIdentity<ApplicationUser>(
+   options => options.SignIn.RequireConfirmedAccount = true
 )
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -20,7 +22,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 builder.Services.AddControllersWithViews();
 
-// permite criar 'variáveis de sessão' (funcionam como 'cookies')
+// permite criar 'variï¿½veis de sessï¿½o' (funcionam como 'cookies')
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options => {
    options.IdleTimeout = TimeSpan.FromSeconds(120);
@@ -48,7 +50,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// usar o serviço das Vars. de Sessão
+// usar o serviï¿½o das Vars. de Sessï¿½o
 app.UseSession();
 
 

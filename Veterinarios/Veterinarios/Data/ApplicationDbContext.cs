@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using Veterinarios.Models;
@@ -6,9 +7,40 @@ using Veterinarios.Models;
 namespace Veterinarios.Data {
 
    /// <summary>
+   /// esta classe irá conter os dados da pessoa que se autentica,
+   /// e regista, na nossa aplicação.
+   /// Além de dados próprios, irá herdar todos os atributos da IdentityUser
+   /// Aqui, há algumas alterações a fazer na nossa app
+   ///    - trocar a referência ao Utilizador no ficheiro 'Program.cs'
+   ///    - 'informar' a base de dados que há um novo tipo de utilizador
+   ///    - trocar em todos os ficheiros da App a referência a IdentityUser por ApplicationUser
+   ///    - não esquecer que estas alterações só se tornam efetivas ao nivel da BD
+   ///          se existir uma Migration
+   /// </summary>
+   public class ApplicationUser : IdentityUser {
+
+      /// <summary>
+      /// data em que o utilizador criou o registo
+      /// </summary>
+      public DateTime DataRegisto { get; set; }
+
+      /* aqui poderiam ser adicionados mais atributos,
+      * se isso fosse considerado necessário
+      * exemplo
+      *   nome
+      *   morada
+      *   cod postal
+      *   nif
+      *   ...
+      */
+   }
+
+
+
+   /// <summary>
    /// representa a base de dados do nosso sistema
    /// </summary>
-   public class ApplicationDbContext : IdentityDbContext {
+   public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
       public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
           : base(options) {
       }
@@ -24,9 +56,9 @@ namespace Veterinarios.Data {
 
          // inicializar os dados das tabelas da BD
          modelBuilder.Entity<MedicosVeterinarios>().HasData(
-            new MedicosVeterinarios { Id=1, Nome="José Lopes", NumCedulaProf="Vet-8768", Fotografia="Jose.jpg"},
-            new MedicosVeterinarios { Id =2, Nome = "Maria dos Santos", NumCedulaProf = "Vet-2568", Fotografia = "Maria.jpg" },
-            new MedicosVeterinarios { Id =3, Nome = "Ricardo Gonçalo Silva", NumCedulaProf = "Vet-2344", Fotografia = "Ricardo.jpg" }
+            new MedicosVeterinarios { Id = 1, Nome = "José Lopes", NumCedulaProf = "Vet-8768", Fotografia = "Jose.jpg" },
+            new MedicosVeterinarios { Id = 2, Nome = "Maria dos Santos", NumCedulaProf = "Vet-2568", Fotografia = "Maria.jpg" },
+            new MedicosVeterinarios { Id = 3, Nome = "Ricardo Gonçalo Silva", NumCedulaProf = "Vet-2344", Fotografia = "Ricardo.jpg" }
             );
 
          modelBuilder.Entity<Donos>().HasData(

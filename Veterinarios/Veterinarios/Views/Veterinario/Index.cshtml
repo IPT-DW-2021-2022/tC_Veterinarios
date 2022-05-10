@@ -6,10 +6,12 @@
 
 <h1>Listagem de todos os médicos veterinários</h1>
 
-<p>
-    <a asp-action="Create">Adicionar novo médico</a>
-</p>
 
+@if (User.Identity.IsAuthenticated) {
+    <p>
+        <a asp-action="Create">Adicionar novo médico</a>
+    </p>
+}
 
 
 <table class="table">
@@ -43,7 +45,7 @@
                 <td>
                     @*  @Html.DisplayFor(modelItem => item.Fotografia)  *@
                     <a href="~/Fotos/@item.Fotografia"
-                       target="_blank">
+                   target="_blank">
                         <img src="~/Fotos/@item.Fotografia"
                          alt="Fotografia do médico(a) @Html.DisplayFor(modelItem => item.Nome)"
                          title="@item.Nome"
@@ -51,9 +53,13 @@
                     </a>
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                    @if (User.Identity.IsAuthenticated) {
+                        <text>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                        </text>
+                    }
                 </td>
             </tr>
         }
