@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 using Veterinarios.Data;
+using Veterinarios.Models;
 
 namespace Veterinarios.Areas.Identity.Pages.Account {
    public class RegisterModel : PageModel {
@@ -31,24 +32,26 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
       private readonly IUserEmailStore<ApplicationUser> _emailStore;
       private readonly ILogger<RegisterModel> _logger;
       private readonly IEmailSender _emailSender;
+      private readonly ApplicationDbContext _context;
 
       public RegisterModel(
           UserManager<ApplicationUser> userManager,
           IUserStore<ApplicationUser> userStore,
           SignInManager<ApplicationUser> signInManager,
           ILogger<RegisterModel> logger,
-          IEmailSender emailSender) {
+          IEmailSender emailSender,
+          ApplicationDbContext context) {
          _userManager = userManager;
          _userStore = userStore;
          _emailStore = GetEmailStore();
          _signInManager = signInManager;
          _logger = logger;
          _emailSender = emailSender;
+         _context = context;
       }
 
       /// <summary>
-      ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-      ///     directly from your code. This API may change or be removed in future releases.
+      /// este atributo contém os atributos que são enviados para a interface gráfica
       /// </summary>
       [BindProperty]
       public InputModel Input { get; set; }
@@ -63,18 +66,16 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
       ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
       ///     directly from your code. This API may change or be removed in future releases.
       /// </summary>
-      public IList<AuthenticationScheme> ExternalLogins { get; set; }
+      //     public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
 
       /// <summary>
-      ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-      ///     directly from your code. This API may change or be removed in future releases.
+      /// como o INPUT é a 'variável' que 'leva' os atributos para a interface
+      /// gráfica, a definição desses atributos é feita nesta classe
       /// </summary>
-      /// 
-
       public class InputModel {
          /// <summary>
-         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-         ///     directly from your code. This API may change or be removed in future releases.
+         /// User name
          /// </summary>
          [Required]
          [EmailAddress]
@@ -82,34 +83,43 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
          public string Email { get; set; }
 
          /// <summary>
-         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-         ///     directly from your code. This API may change or be removed in future releases.
+         /// Password
          /// </summary>
-         [Required]
-         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+         [Required(ErrorMessage = "Deve introduzir a sua {0}, por favor.")]
+         [StringLength(20, ErrorMessage = "A {0} dever ter, pelo menos, {2} e um máximo de  {1} caracteres.", MinimumLength = 6)]
          [DataType(DataType.Password)]
          [Display(Name = "Password")]
          public string Password { get; set; }
 
          /// <summary>
-         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-         ///     directly from your code. This API may change or be removed in future releases.
+         /// confirmação da password
          /// </summary>
          [DataType(DataType.Password)]
-         [Display(Name = "Confirm password")]
-         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+         [Display(Name = "Confirmar password")]
+         [Compare("Password", ErrorMessage = "A password e a sua confirmação não são iguais.")]
          public string ConfirmPassword { get; set; }
-      }
+
+         /// <summary>
+         /// adicionar os dados do DONO, para serem enviados para a interface gráfica
+         /// </summary>
+         public Donos Dono { get; set; }
+
+      } // fim da inner class 'InputModel'
+
+
+
 
       /// <summary>
       /// este método reage ao HTTP GET
       /// </summary>
       /// <param name="returnUrl"></param>
       /// <returns></returns>
-      public async Task OnGetAsync(string returnUrl = null) {
+      public void OnGet(string returnUrl = null) {
          ReturnUrl = returnUrl;
-         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+         //   ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
       }
+
+
 
       /// <summary>
       /// Este método reage ao HTTP POST
@@ -117,24 +127,61 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
       /// <param name="returnUrl"></param>
       /// <returns></returns>
       public async Task<IActionResult> OnPostAsync(string returnUrl = null) {
+
          returnUrl ??= Url.Content("~/");
-         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-       
+         //     ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+         // avalia se os dados fornecidos pelo browser são bons.
+         // Isto quer dizer, se respeitam as retrições do Model
          if (ModelState.IsValid) {
+
+            // criar um objeto do tipo ApplicationUser
             var user = CreateUser();
 
             // atribuir a data+hora da criação do utilizador
-            user.DataRegisto=DateTime.Now;
+            user.DataRegisto = DateTime.Now;
 
-
-
+            //user.UserName = Input.Email;
+            //user.NormalizedEmail = Input.Email.ToUpper();
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+            // adição do email aos dados do user
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            // criação efetiva do utilizador
             var result = await _userManager.CreateAsync(user, Input.Password);
 
+            // avaliação se houve, ou não, sucesso na criação do utilizador
             if (result.Succeeded) {
+
                _logger.LogInformation("User created a new account with password.");
 
+               //**********************************************************
+               // Não esquecer que ainda é necessário guardar os dados do DONO na BD
+               //**********************************************************
+               // atualizar o objeto do Input.Dono cos os dados em falta
+               Input.Dono.Email = Input.Email;
+               Input.Dono.UserId = user.Id; // este atributo será utilizado para 
+                                            // ligar as duas bases de dados
+                                            // a base de dados de negócio
+                                            // e a base de dados de autenticação
+
+               try {
+                  // adicionar o 'DONO' à base de dados
+                  _context.Add(Input.Dono);
+                  await _context.SaveChangesAsync();
+               }
+               catch (Exception) {
+                  // se aqui chego é pq não se conseguiu escrever os dados do DONO
+                  // na BD, mas o 'user' foi criado.
+                  // quais as ações a executar????
+
+                  // é preciso decidir...
+                  //  throw;
+               }
+
+
+
+               // conjunto de código usado para a operação de validação do email
+               // do novo utilizador...
                var userId = await _userManager.GetUserIdAsync(user);
                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
