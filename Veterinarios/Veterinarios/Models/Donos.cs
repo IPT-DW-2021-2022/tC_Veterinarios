@@ -58,5 +58,12 @@ namespace Veterinarios.Models {
       public ICollection<Animais> ListaAnimais { get; set; }
 
 
+      //************************************************************************
+      /// <summary>
+      /// esta FK irá permitir relacionar o DONO com a Autenticação
+      /// </summary>
+      public string UserId { get; set; }
+      //************************************************************************
+  
    }
 }
