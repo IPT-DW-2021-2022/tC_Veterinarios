@@ -39,12 +39,12 @@ namespace Veterinarios.Controllers {
       public async Task<IActionResult> Index() {
 
          // determinar o ID da pessoa q está autenticada
-        string idDaPessoaQueEstaAutenticada=_userManager.GetUserId(User);
+         string idDaPessoaQueEstaAutenticada = _userManager.GetUserId(User);
 
          // procurar a lista de animais
          var animais = _context.Animais
                                .Include(a => a.Dono)
-                               .Where(a=>a.Dono.UserId==idDaPessoaQueEstaAutenticada);
+                               .Where(a => a.Dono.UserId == idDaPessoaQueEstaAutenticada);
 
 
          return View(await animais.ToListAsync());
@@ -56,22 +56,30 @@ namespace Veterinarios.Controllers {
       // GET: Animais/Details/5
       public async Task<IActionResult> Details(int? id) {
          if (id == null || _context.Animais == null) {
-            return NotFound();
+            return RedirectToAction("Index");
          }
 
-         var animais = await _context.Animais
-             .Include(a => a.Dono)
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (animais == null) {
-            return NotFound();
+         // determinar o ID da pessoa q está autenticada
+         string idDaPessoaQueEstaAutenticada = _userManager.GetUserId(User);
+
+         var animal = await _context.Animais
+                                    .Include(a => a.Dono)
+                                    .Include(a=>a.ListaConsultas)
+                                    .Where(m => m.Id == id &&
+                                                m.Dono.UserId == idDaPessoaQueEstaAutenticada)
+                                    .FirstOrDefaultAsync();
+
+         if (animal == null) {
+            return RedirectToAction("Index");
          }
 
-         return View(animais);
+         return View(animal);
       }
 
       // GET: Animais/Create
       public IActionResult Create() {
-         ViewData["DonoFK"] = new SelectList(_context.Donos, "Id", "NIF");
+         // Não vamos usar a 'dropdown', pois o animal será do 'dono' autenticado
+         // ViewData["DonoFK"] = new SelectList(_context.Donos, "Id", "Nome");
          return View();
       }
 
@@ -80,15 +88,43 @@ namespace Veterinarios.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Nome,Especie,Raca,Peso,Foto,DonoFK")] Animais animais) {
+      public async Task<IActionResult> Create([Bind("Nome,Especie,Raca,Peso,Foto")] Animais animal) {
+
+         /* procurar o ID do Dono, que está autenticado:
+          * 1- primeiro procurar o UserID da pessoa autenticada
+          * 2- usar este valor para selecionar o Dono
+          * 3- 'retirar-lhe' o 'Id'
+          */
+         // (1)
+         string idDaPessoaQueEstaAutenticada = _userManager.GetUserId(User);
+         // (2 + 3)
+         int idDono = _context.Donos
+                              .Where(d => d.UserId == idDaPessoaQueEstaAutenticada)
+                              .FirstOrDefault()
+                              .Id;
+
+         // atribuir o valor obtido (idDono) como FK ao 'animal'
+         animal.DonoFK = idDono;
+
          if (ModelState.IsValid) {
-            _context.Add(animais);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try {
+               _context.Add(animal);
+               await _context.SaveChangesAsync();
+               return RedirectToAction(nameof(Index));
+            }
+            catch (Exception) {
+
+               throw;
+            }
          }
-         ViewData["DonoFK"] = new SelectList(_context.Donos, "Id", "NIF", animais.DonoFK);
-         return View(animais);
+         //    ViewData["DonoFK"] = new SelectList(_context.Donos, "Id", "NIF", animais.DonoFK);
+         return View(animal);
       }
+
+
+
+
+
 
       // GET: Animais/Edit/5
       public async Task<IActionResult> Edit(int? id) {
