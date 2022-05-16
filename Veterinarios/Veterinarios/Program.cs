@@ -13,10 +13,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // estamos a configurar o 'serviço' que deve usar a classe ApplicationUser como
 // gestora dos dados da autenticação
-builder.Services.AddDefaultIdentity<ApplicationUser>(
-   options => options.SignIn.RequireConfirmedAccount = true
-)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>() // ativa o uso de ROLES (perfis de utilizador)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 

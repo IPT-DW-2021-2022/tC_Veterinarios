@@ -38,16 +38,20 @@ namespace Veterinarios.Controllers {
       // GET: Animais
       public async Task<IActionResult> Index() {
 
-         // determinar o ID da pessoa q está autenticada
-         string idDaPessoaQueEstaAutenticada = _userManager.GetUserId(User);
+         if (User.IsInRole("Cliente")) {
+            // determinar o ID da pessoa q está autenticada
+            string idDaPessoaQueEstaAutenticada = _userManager.GetUserId(User);
 
-         // procurar a lista de animais
-         var animais = _context.Animais
-                               .Include(a => a.Dono)
-                               .Where(a => a.Dono.UserId == idDaPessoaQueEstaAutenticada);
+            // procurar a lista de animais
+            var animais = _context.Animais
+                                  .Include(a => a.Dono)
+                                  .Where(a => a.Dono.UserId == idDaPessoaQueEstaAutenticada);
+            return View(await animais.ToListAsync());
+         }
 
-
-         return View(await animais.ToListAsync());
+         var todosAnimais = _context.Animais
+                                    .Include(a => a.Dono);
+         return View(await todosAnimais.ToListAsync());
       }
 
 
@@ -64,7 +68,7 @@ namespace Veterinarios.Controllers {
 
          var animal = await _context.Animais
                                     .Include(a => a.Dono)
-                                    .Include(a=>a.ListaConsultas)
+                                    .Include(a => a.ListaConsultas)
                                     .Where(m => m.Id == id &&
                                                 m.Dono.UserId == idDaPessoaQueEstaAutenticada)
                                     .FirstOrDefaultAsync();

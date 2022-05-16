@@ -54,6 +54,15 @@ namespace Veterinarios.Data {
           * */
          base.OnModelCreating(modelBuilder);
 
+         // criar dados das ROLES
+         modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole { Id = "v", Name = "Veterinario", NormalizedName = "VETERINARIO" },
+            new IdentityRole { Id = "a", Name = "Administrativo", NormalizedName = "ADMINISTRATIVO" },
+            new IdentityRole { Id = "c", Name = "Cliente", NormalizedName = "CLIENTE" }
+         );
+
+
+
          // inicializar os dados das tabelas da BD
          modelBuilder.Entity<MedicosVeterinarios>().HasData(
             new MedicosVeterinarios { Id = 1, Nome = "José Lopes", NumCedulaProf = "Vet-8768", Fotografia = "Jose.jpg" },
