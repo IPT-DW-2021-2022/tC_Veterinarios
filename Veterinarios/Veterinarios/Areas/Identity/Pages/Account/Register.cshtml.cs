@@ -154,6 +154,9 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
 
                _logger.LogInformation("User created a new account with password.");
 
+               // adicionar o utilizador à Role Cliente
+               await _userManager.AddToRoleAsync(user, "Cliente");
+
                //**********************************************************
                // Não esquecer que ainda é necessário guardar os dados do DONO na BD
                //**********************************************************
