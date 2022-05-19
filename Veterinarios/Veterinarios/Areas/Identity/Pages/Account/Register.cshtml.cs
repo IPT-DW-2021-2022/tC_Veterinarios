@@ -146,6 +146,9 @@ namespace Veterinarios.Areas.Identity.Pages.Account {
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             // adição do email aos dados do user
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            // atribuir o nome do utilizador na classe de autenticação
+            user.NomeBatismo = Input.Dono.Nome;
+
             // criação efetiva do utilizador
             var result = await _userManager.CreateAsync(user, Input.Password);
 

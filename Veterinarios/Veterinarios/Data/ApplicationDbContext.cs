@@ -24,6 +24,8 @@ namespace Veterinarios.Data {
       /// </summary>
       public DateTime DataRegisto { get; set; }
 
+      public string NomeBatismo { get; set; }
+
       /* aqui poderiam ser adicionados mais atributos,
       * se isso fosse considerado necessário
       * exemplo
