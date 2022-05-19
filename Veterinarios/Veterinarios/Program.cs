@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,38 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
                 .AddRoles<IdentityRole>() // ativa o uso de ROLES (perfis de utilizador)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+
+// https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-6.0&tabs=aspnetcore2x&viewFallbackFrom=aspnetcore-2.1
+builder.Services.Configure<IdentityOptions>(options => {
+   // Default Lockout settings.
+   options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(50);
+   options.Lockout.MaxFailedAccessAttempts = 5;
+   options.Lockout.AllowedForNewUsers = true;
+   // Password settings
+   options.Password.RequireDigit = true;
+   options.Password.RequiredLength = 6;
+   options.Password.RequireNonAlphanumeric = false;
+   options.Password.RequireUppercase = false;
+   options.Password.RequireLowercase = true;
+   options.Password.RequiredUniqueChars = 1;
+   // Default User settings.
+   options.User.AllowedUserNameCharacters =
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+   options.User.RequireUniqueEmail = false;
+});
+
+
+builder.Services.ConfigureApplicationCookie(options => {
+   options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+   options.Cookie.Name = "YourAppCookieName";
+   options.Cookie.HttpOnly = true;
+   options.ExpireTimeSpan = TimeSpan.FromMinutes(1); // especifica o tempo de inatividade que implica um 'logout' automático
+   options.LoginPath = "/Identity/Account/Login";
+   // ReturnUrlParameter requires 
+   //using Microsoft.AspNetCore.Authentication.Cookies;
+   options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+   options.SlidingExpiration = true;
+});
 
 
 builder.Services.AddControllersWithViews();
