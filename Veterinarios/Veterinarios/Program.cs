@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using System.Text.Json.Serialization;
+
 using Veterinarios.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
                 .AddRoles<IdentityRole>() // ativa o uso de ROLES (perfis de utilizador)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+
+// inibir a referência circular num documento JSON
+// https://gavilan.blog/2021/05/19/fixing-the-error-a-possible-object-cycle-was-detected-in-different-versions-of-asp-net-core/
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-6.0&tabs=aspnetcore2x&viewFallbackFrom=aspnetcore-2.1
 builder.Services.Configure<IdentityOptions>(options => {
@@ -43,7 +50,7 @@ builder.Services.ConfigureApplicationCookie(options => {
    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
    options.Cookie.Name = "YourAppCookieName";
    options.Cookie.HttpOnly = true;
-   options.ExpireTimeSpan = TimeSpan.FromMinutes(1); // especifica o tempo de inatividade que implica um 'logout' automático
+   options.ExpireTimeSpan = TimeSpan.FromMinutes(20); // especifica o tempo de inatividade que implica um 'logout' automático
    options.LoginPath = "/Identity/Account/Login";
    // ReturnUrlParameter requires 
    //using Microsoft.AspNetCore.Authentication.Cookies;
