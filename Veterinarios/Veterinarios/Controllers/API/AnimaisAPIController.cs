@@ -90,25 +90,31 @@ namespace Veterinarios.Controllers.API
          return NoContent();
       }
 
+
+
       // POST: api/AnimaisAPI
       // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
       [HttpPost]
-      public async Task<ActionResult<Animais>> PostAnimais(Animais animais) {
-         _context.Animais.Add(animais);
+      public async Task<ActionResult<Animais>> PostAnimais(Animais animal) {
+         _context.Animais.Add(animal);
          await _context.SaveChangesAsync();
 
-         return CreatedAtAction("GetAnimais", new { id = animais.Id }, animais);
+         return CreatedAtAction("GetAnimais", new { id = animal.Id }, animal);
       }
+
+
+
 
       // DELETE: api/AnimaisAPI/5
       [HttpDelete("{id}")]
       public async Task<IActionResult> DeleteAnimais(int id) {
-         var animais = await _context.Animais.FindAsync(id);
-         if (animais == null) {
+
+         var animal = await _context.Animais.FindAsync(id);
+         if (animal == null) {
             return NotFound();
          }
 
-         _context.Animais.Remove(animais);
+         _context.Animais.Remove(animal);
          await _context.SaveChangesAsync();
 
          return NoContent();
